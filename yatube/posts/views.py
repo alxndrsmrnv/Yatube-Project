@@ -92,7 +92,7 @@ def post_edit(request, username, post_id):
 
 def add_comment(request, username, post_id):
     if request.user.is_authenticated == False:
-        return redirect('post', username, post_id)
+        return redirect('signup')
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
     if form.is_valid():
