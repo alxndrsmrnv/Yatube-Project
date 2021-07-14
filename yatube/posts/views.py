@@ -86,14 +86,14 @@ def post_edit(request, username, post_id):
     if form.is_valid():
         post.save()
         return redirect('post', username, post_id)
-    context = {'form': form, 'title': 'Редактировать запись',
+    context = {'form': form, 'post': post, 'title': 'Редактировать запись',
                'header': 'Редактировать', 'button': 'Сохранить'}
     return render(request, 'new.html', context)
 
 
 def add_comment(request, username, post_id):
     if request.user.is_authenticated is False:
-        return redirect('signup')
+        return redirect('/auth/login/')
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
     if form.is_valid():
