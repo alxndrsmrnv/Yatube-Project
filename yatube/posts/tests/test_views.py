@@ -60,7 +60,6 @@ class TestViewPosts(TestCase):
         self.authorized_client2 = Client()
         self.authorized_client2.force_login(self.user2)
 
-
     def test_pages_uses_correct_template(self):
         templates_page_names = {
             'index.html': reverse('index'),
@@ -212,8 +211,6 @@ class TestViewPosts(TestCase):
                                            'post_id': TestViewPosts.post.id}))
         self.assertEqual(request_auth.status_code, HTTPStatus.OK)
         self.assertEqual(request_guest.status_code, HTTPStatus.FOUND)
-
-
 
 
 class TestPaginatorPosts(TestCase):

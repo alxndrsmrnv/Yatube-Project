@@ -38,7 +38,8 @@ def profile(request, username):
     post_user_count = author.posts.all().count()
     following = True
     if request.user.is_authenticated:
-        following = Follow.objects.filter(user=request.user, author=author).exists()
+        following = Follow.objects.filter(
+            user=request.user, author=author).exists()
     context = {'page': page, 'post_user_count': post_user_count,
                'author': author, 'following': following}
     return render(request, 'profile.html', context)
@@ -91,7 +92,7 @@ def post_edit(request, username, post_id):
 
 
 def add_comment(request, username, post_id):
-    if request.user.is_authenticated == False:
+    if request.user.is_authenticated is False:
         return redirect('signup')
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
