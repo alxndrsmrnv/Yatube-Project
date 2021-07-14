@@ -2,6 +2,7 @@ import shutil
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.http import request
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.core.cache import cache
@@ -177,13 +178,17 @@ class TestViewPosts(TestCase):
         self.assertEqual(response_before, response_after)
 
     def test_user_can_follow_unfollow(self):
-        all_follow = Follow.objects.all().count()
-        Follow.objects.create(user=TestViewPosts.user,
-                              author=TestViewPosts.user1)
-        self.assertNotEqual(all_follow, all_follow + 1)
-        Follow.objects.filter(user=TestViewPosts.user,
-                              author=TestViewPosts.user1).delete()
-        self.assertEqual(all_follow, all_follow)
+        self.authorized_client.get(
+            reverse('profile_follow', kwargs={'username': TestViewPosts.user1})
+        )
+        self.assertTrue(Follow.objects.filter(user=TestViewPosts.user,
+                                              author=TestViewPosts.user1))
+        self.authorized_client.get(
+            reverse('profile_unfollow',
+                    kwargs={'username': TestViewPosts.user1})
+        )
+        self.assertFalse(Follow.objects.filter(user=TestViewPosts.user,
+                                               author=TestViewPosts.user1))
 
     def test_follow_page(self):
         Follow.objects.create(user=TestViewPosts.user,

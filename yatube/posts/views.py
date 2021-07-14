@@ -12,7 +12,7 @@ from .models import Group, Post, User, Follow
 
 @cache_page(20, key_prefix='index_page')
 def index(request):
-    post_list = Post.objects.all()
+    post_list = Post.objects.select_related('author').all()
     paginator = Paginator(post_list, PAGINATOR_CONST)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -31,17 +31,25 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
+    follower_count = author.follower.count()
+    following_count = author.following.count()
     profile_list = author.posts.all()
     paginator = Paginator(profile_list, PAGINATOR_CONST)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     post_user_count = author.posts.all().count()
-    following = True
+    following = False
     if request.user.is_authenticated:
         following = Follow.objects.filter(
             user=request.user, author=author).exists()
-    context = {'page': page, 'post_user_count': post_user_count,
-               'author': author, 'following': following}
+    context = {
+        'follower_count': follower_count,
+        'following_count': following_count,
+        'page': page,
+        'post_user_count': post_user_count,
+        'author': author,
+        'following': following
+    }
     return render(request, 'profile.html', context)
 
 
@@ -50,7 +58,12 @@ def post_view(request, username, post_id):
     comments = post.comments.all()
     form = CommentForm()
     post_user_count = post.author.posts.all().count()
+    author = get_object_or_404(User, username=username)
+    follower_count = author.follower.count()
+    following_count = author.following.count()
     context = {
+        'follower_count': follower_count,
+        'following_count': following_count,
         'post_user_count': post_user_count,
         'post': post,
         'comments': comments,
@@ -92,8 +105,8 @@ def post_edit(request, username, post_id):
 
 
 def add_comment(request, username, post_id):
-    if request.user.is_authenticated is False:
-        return redirect('/auth/login/')
+    if not request.user.is_authenticated:
+        return redirect('login')
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
     if form.is_valid():
@@ -108,9 +121,7 @@ def add_comment(request, username, post_id):
 
 @login_required
 def follow_index(request):
-    user_that_follows = get_object_or_404(User, username=request.user)
-    follow_posts = Post.objects.filter(
-        author__following__user=user_that_follows)
+    follow_posts = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(follow_posts, PAGINATOR_CONST)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
