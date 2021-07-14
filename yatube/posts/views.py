@@ -123,7 +123,7 @@ def profile_follow(request, username):
     path = reverse('profile', kwargs={'username': username})
     author = get_object_or_404(User, username=username)
     if author != request.user:
-        Follow.objects.create(user=request.user, author=author)
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect(path)
 
 
