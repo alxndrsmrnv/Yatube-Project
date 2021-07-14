@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Список подписок{% endblock %}
+{% block header %}Список подписок {{ post.author.username }}{% endblock %}
+{% block content %}
+  {% include "includes/menu.html" %}
+  {% for post in page %}
+    <h3>
+      Автор: {{ post.author.get_full_name }}, Дата публикации: {{ post.pub_date|date:"d M Y" }}
+    </h3>
+    <p>{% include "includes/post_card.html" with author=post.author %} </p>
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+  {% include "includes/paginator.html" %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Профиль пользователя {{ post.author.get_full_name }} {% endblock %}
+{% block content %}
+
+<main role="main" class="container">
+    <div class="row">
+      {% include "includes/follow_card.html" with profile=author %}
+      {% include "includes/profile_card.html" %}
+      <div class="col-md-9">
+        {% for post in page %}
+        {% include 'includes/post_card.html' %}
+        {% endfor %}
+        {% include "includes/paginator.html" %}
+      </div>
+    </div>
+  </main>
+{% endblock %}
